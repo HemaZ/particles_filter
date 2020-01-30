@@ -107,3 +107,7 @@ double Robot::measurement_prob(std::vector<float> measurement){
     }
     return prob;
 }
+
+float Robot::getX(){return x_;}
+float Robot::getY(){return y_;}
+std::vector<std::vector<double>> Robot::getLandMarks(){return landmarks_;}

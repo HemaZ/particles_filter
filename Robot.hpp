@@ -17,6 +17,9 @@ class Robot{
     float gaussian(double miu, double sigma, float x);
     double measurement_prob(std::vector<float> measurement); 
     void print();
+    float getX();
+    float getY();
+    std::vector<std::vector<double>> getLandMarks();
 };
 
 

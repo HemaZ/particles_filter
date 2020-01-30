@@ -1,3 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
 project (particles_filter)
+find_package(OpenCV REQUIRED)
 add_executable(particles_filter particles_filter.cpp Robot.cpp)
+target_link_libraries(particles_filter ${OpenCV_LIBS})
