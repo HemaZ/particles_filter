@@ -31,15 +31,16 @@ void visParticles(Robot myBot, std::vector<Robot> particles){
 
 int main(){
     srand(time(0));
-    //landmarks  = [[20.0, 20.0], [80.0, 80.0], [20.0, 80.0], [80.0, 20.0]]
+    // Create landmarks  = [[20.0, 20.0], [80.0, 80.0], [20.0, 80.0], [80.0, 20.0]]
     std::vector<std::vector<double>> landmarks;
     landmarks.push_back(std::vector<double>{20.0, 20.0});
     landmarks.push_back(std::vector<double>{80.0, 80.0});
     landmarks.push_back(std::vector<double>{20.0, 80.0});
     landmarks.push_back(std::vector<double>{80.0, 20.0});
+    // Create Our Robot
     Robot mybot(100, landmarks);
-    mybot.move(0.1, 5.0);
-    std::vector<float> measurements = mybot.sense();
+    std::vector<float> measurements;
+    // Define number of particles and set noises
     int N = 1000;
     std::vector<Robot> p;
     for(int i=0; i<N; i++){
@@ -47,7 +48,7 @@ int main(){
         particl.set_noise(0.05, 0.05, 5);
         p.push_back(particl);
     }
-
+    // define number of time steps.
     int T = 10;
 
     for (size_t ti = 0; ti < T; ti++)
@@ -81,6 +82,7 @@ int main(){
             }
             p3.push_back(p2[index]);
         }
+        // visualize the particles and the robot.
         visParticles(mybot, p3);
         p = p3;
     }
