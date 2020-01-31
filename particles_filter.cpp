@@ -6,7 +6,7 @@
 #include <random>
 
 
-void visParticles(std::vector<Robot> particles){
+void visParticles(Robot myBot, std::vector<Robot> particles){
     cv::Mat img = cv::Mat::zeros(500, 500, CV_8UC3);
     std::vector<std::vector<double>> landmarks = particles[0].getLandMarks();   
     for (size_t i = 0; i < particles.size(); i++)
@@ -17,6 +17,7 @@ void visParticles(std::vector<Robot> particles){
     {
         cv::circle(img, cv::Point(landmarks[i][0]*5, landmarks[i][1]*5), 5, cv::Scalar(0,255,0), 10);
     }
+    cv::circle(img, cv::Point(myBot.getX()*5, myBot.getY()*5), 5, cv::Scalar(255,0,0), 10);
     cv::namedWindow("Particles");
     cv::imshow("Particles", img);
     cv::waitKey(0);
@@ -37,22 +38,56 @@ int main(){
     landmarks.push_back(std::vector<double>{20.0, 80.0});
     landmarks.push_back(std::vector<double>{80.0, 20.0});
     Robot mybot(100, landmarks);
-    mybot.set_noise(5, 0.1, 5);
-    mybot.set_states(30, 50, M_PI_2);
-    mybot.move(-M_PI_2, 15);
-    mybot.move(-M_PI_2, 10);
-    std::vector<float> measurments = mybot.sense();
+    mybot.move(0.1, 5.0);
+    std::vector<float> measurements = mybot.sense();
     int N = 1000;
     std::vector<Robot> p;
     for(int i=0; i<N; i++){
-        p.push_back(Robot(100, landmarks));
+        Robot particl(100, landmarks);
+        particl.set_noise(0.05, 0.05, 5);
+        p.push_back(particl);
     }
-    std::vector<Robot> p2;
-    p2.assign(p.begin(), p.end());
-    for (size_t i = 0; i < N; i++)
+
+    int T = 10;
+
+    for (size_t ti = 0; ti < T; ti++)
     {
-        p2[i].move(0.1, 5);
+        mybot.move(0.1, 5.0);
+        measurements = mybot.sense();
+        std::vector<Robot> p2;
+        p2.assign(p.begin(), p.end());
+        for (size_t i = 0; i < N; i++)
+        {
+            p2[i].move(0.1, 5);
+        }
+        visParticles(mybot, p2);
+        
+        std::vector<double> w;
+        for (size_t i = 0; i < N; i++)
+        {
+            w.push_back(p2[i].measurement_prob(measurements));
+        }
+        
+        std::vector<Robot> p3;
+        int index = rand() %N;
+        double mw = *std::max_element(w.begin(), w.end());
+        double beta = 0;
+        for (size_t i = 0; i < N; i++)
+        {
+            beta += ((double) rand() / (RAND_MAX)) * 2 * mw;
+            while(beta>w[index]){
+                beta -= w[index];
+                index = (index+1)%N;
+            }
+            p3.push_back(p2[index]);
+        }
+        visParticles(mybot, p3);
+        p = p3;
     }
-    visParticles(p2);
+    
+
+   
+    
+
     return 0;
 }
